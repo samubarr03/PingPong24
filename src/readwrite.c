@@ -72,8 +72,8 @@ ssize_t nonblocking_write_all(int fd, const void *ptr, size_t n)
 		if (n_written < 0) {
 
 /*** TO BE DONE START ***/
-
-
+			if(errno == EAGAIN || errno == EWOULDBLOCK) //quando è -1 vuol dire che non ha scritto nulla 
+				continue;
 /*** TO BE DONE END ***/
 
 			if (n_left == n)

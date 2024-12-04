@@ -118,7 +118,6 @@ int open_udp_socket(int *pong_port)
 		sprintf(port_number_as_str, "%d", port_number);
 /*** TO BE DONE START ***/
 
-
 /*** TO BE DONE END ***/
 		if (errno != EADDRINUSE) 
 			fail_errno("UDP Pong could not bind the socket");
@@ -263,8 +262,27 @@ int main(int argc, char **argv)
 	gai_hints.ai_protocol = IPPROTO_TCP;
 
 /*** TO BE DONE START ***/
+	if((gai_rv = getaddrinfo(NULL, argv[1], &gai_hints, &server_addrinfo))>0)
+		fail(gai_strerror(gai_rv));
 
+	struct addrinfo *addr;
 
+	for(addr = server_addrinfo; addr != NULL; addr = addr->ai_next)
+		{
+			if((server_socket  = socket(server_addrinfo->ai_family, server_addrinfo->ai_socktype, 0)) < 0)
+				continue;
+
+			if((bind(server_socket, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) == 0)
+					break;
+
+			close(server_socket);
+		}
+
+		if(addr == NULL)
+			fail_errno("Pong Server cannot bind socket");
+
+		if (listen(server_socket, LISTENBACKLOG) < 0)
+			fail_errno("Pong Server cannot listen");
 
 /*** TO BE DONE END ***/
 
