@@ -39,28 +39,31 @@ double do_ping(size_t msg_size, int msg_no, char message[msg_size], int ping_soc
 
     /*** write msg_no at the beginning of the message buffer ***/
 /*** TO BE DONE START ***/
-
-
+	printf(message, "%d\n", msg_no);
 /*** TO BE DONE END ***/
 
 	do {
 		debug(" ... sending message %d\n", msg_no);
 	/*** Store the current time in send_time ***/
 /*** TO BE DONE START ***/
-
-
+	if (clock_gettime(CLOCK_TYPE, &send_time) == 1)
+		fail_errno("Error getting time");
 /*** TO BE DONE END ***/
 
 	/*** Send the message through the socket ***/
 /*** TO BE DONE START ***/
-
+send(ping_socket, message, msg_size, 0);
 
 /*** TO BE DONE END ***/
 
 	/*** Receive answer through the socket (non blocking mode) ***/
 /*** TO BE DONE START ***/
-
-
+	for (int offset = 0; (offset + (recv_bytes = recv(ping_socket, answer_buffer + offset, sent_bytes - offset, MSG_WAITALL))) < msg_size; offset += recv_bytes)
+	{
+		debug(" ... received %zd bytes back\n", recv_bytes);
+		if (recv_bytes < 0)
+			fail_errno("Error receiving data");
+	}
 /*** TO BE DONE END ***/
 
 	/*** Store the current time in recv_time ***/
