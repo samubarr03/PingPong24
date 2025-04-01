@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 
 	/*** Write the request on socket ***/
 	/*** TO BE DONE START ***/
-
+	send(tcp_socket, request, msgsz, 0);
 	/*** TO BE DONE END ***/
 
 	nr = read(tcp_socket, answer, sizeof(answer));
@@ -148,7 +148,8 @@ int main(int argc, char **argv)
 
 	/*** Check if the answer is OK, and fail if it is not ***/
 	/*** TO BE DONE START ***/
-
+	if(strcmp("OK", answer))
+	 fail("Connessione non riouscita");
 	/*** TO BE DONE END ***/
 
 	/*** else ***/
