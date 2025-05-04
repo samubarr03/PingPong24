@@ -68,8 +68,8 @@ send(ping_socket, message, msg_size, 0);
 
 	/*** Store the current time in recv_time ***/
 /*** TO BE DONE START ***/
-
-
+		if (clock_gettime(CLOCK_TYPE, &recv_time) == -1)
+			fail_errno("Error getting time");
 /*** TO BE DONE END ***/
 
 		roundtrip_time_ms = timespec_delta2milliseconds(&recv_time, &send_time);
