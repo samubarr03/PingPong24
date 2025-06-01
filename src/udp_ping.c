@@ -39,7 +39,7 @@ double do_ping(size_t msg_size, int msg_no, char message[msg_size], int ping_soc
 
     /*** write msg_no at the beginning of the message buffer ***/
 /*** TO BE DONE START ***/
-	printf(message, "%d\n", msg_no);
+sprintf(message, "%d\n", msg_no);
 /*** TO BE DONE END ***/
 
 	do {
@@ -52,18 +52,17 @@ double do_ping(size_t msg_size, int msg_no, char message[msg_size], int ping_soc
 
 	/*** Send the message through the socket ***/
 /*** TO BE DONE START ***/
-send(ping_socket, message, msg_size, 0);
+		sent_bytes = nonblocking_write_all(ping_socket, message, msg_size);
+		if (sent_bytes < 0 || sent_bytes != msg_size)
+			fail_errno("Error sending data");
 
 /*** TO BE DONE END ***/
 
 	/*** Receive answer through the socket (non blocking mode) ***/
 /*** TO BE DONE START ***/
-	for (int offset = 0; (offset + (recv_bytes = recv(ping_socket, answer_buffer + offset, sent_bytes - offset, MSG_WAITALL))) < msg_size; offset += recv_bytes)
-	{
-		debug(" ... received %zd bytes back\n", recv_bytes);
-		if (recv_bytes < 0)
-			fail_errno("Error receiving data");
-	}
+		recv_bytes = recv(ping_socket, answer_buffer, sent_bytes, 0);
+		if (recv_bytes == -1 || recv_bytes != sent_bytes)
+			recv_errno = errno;
 /*** TO BE DONE END ***/
 
 	/*** Store the current time in recv_time ***/
@@ -109,7 +108,8 @@ int prepare_udp_socket(char *pong_addr, char *pong_port)
     /*** Specify the UDP sockets' options ***/
 	memset(&gai_hints, 0, sizeof gai_hints);
 /*** TO BE DONE START ***/
-
+	gai_hints.ai_family = AF_INET;
+	gai_hints.ai_socktype = SOCK_DGRAM;
 
 /*** TO BE DONE END ***/
 
@@ -117,13 +117,14 @@ int prepare_udp_socket(char *pong_addr, char *pong_port)
 		fail_errno("UDP Ping could not get socket");
     /*** change socket behavior to NONBLOCKING ***/
 /*** TO BE DONE START ***/
-	
-
+		if (fcntl(ping_socket, F_SETFL, O_NONBLOCK) == -1)
+		fail_errno("UDP Ping could not set socket to non-blocking");
 /*** TO BE DONE END ***/
 
     /*** call getaddrinfo() in order to get Pong Server address in binary form ***/
 /*** TO BE DONE START ***/
-
+	if ((gai_rv = getaddrinfo(pong_addr, pong_port, &gai_hints, &pong_addrinfo)) < 0)
+		fail("UDP Ping could not get address info");
 
 /*** TO BE DONE END ***/
 
@@ -141,6 +142,8 @@ int prepare_udp_socket(char *pong_addr, char *pong_port)
 
     /*** connect the ping_socket UDP socket with the server ***/
 /*** TO BE DONE START ***/
+	if (connect(ping_socket, pong_addrinfo->ai_addr, pong_addrinfo->ai_addrlen) < 0)
+		fail_errno("UDP Ping could not connect socket");
 
 
 /*** TO BE DONE END ***/
@@ -176,13 +179,17 @@ int main(int argc, char *argv[])
     /*** Specify TCP socket options ***/
 	memset(&gai_hints, 0, sizeof gai_hints);
 /*** TO BE DONE START ***/
-
+	gai_hints.ai_family = AF_INET;
+	gai_hints.ai_socktype = SOCK_STREAM;
+	gai_hints.ai_protocol = IPPROTO_TCP;
 
 /*** TO BE DONE END ***/
 
     /*** call getaddrinfo() in order to get Pong Server address in binary form ***/
 /*** TO BE DONE START ***/
 
+	if ((gai_rv = getaddrinfo(argv[1], argv[2], &gai_hints, &server_addrinfo)) < 0)
+		fail_errno("Error getting address info");
 
 /*** TO BE DONE END ***/
 
@@ -193,6 +200,19 @@ int main(int argc, char *argv[])
     /*** create a new TCP socket and connect it with the server ***/
 /*** TO BE DONE START ***/
 
+	struct addrinfo *addr;
+
+	for (addr = server_addrinfo; addr != NULL; addr = addr->ai_next)
+	{
+		if ((ask_socket = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol)) < 0)
+			continue;
+		if (connect(ask_socket, addr->ai_addr, addr->ai_addrlen) == 0)
+			break;
+		close(ask_socket);
+	}
+
+	if (addr == NULL)
+		fail_errno("Error connecting socket");
 
 /*** TO BE DONE END ***/
 
@@ -202,6 +222,12 @@ int main(int argc, char *argv[])
 
     /*** Write the request on the TCP socket ***/
 /** TO BE DONE START ***/
+	size_t request_len = strlen(request);
+	if(request_len > MAX_REQ)
+		fail("Request too long");
+
+	if (write(ask_socket, request, request_len) != request_len)
+		fail_errno("Error writing request on socket");
 
 
 /*** TO BE DONE END ***/
@@ -215,7 +241,8 @@ int main(int argc, char *argv[])
 
     /*** Check if the answer is OK, and fail if it is not ***/
 /*** TO BE DONE START ***/
-
+	if (strncmp(answer, "OK", 2) != 0)
+		fail("UDP Ping received an unexpected answer from Pong server");
 
 /*** TO BE DONE END ***/
 

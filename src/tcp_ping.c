@@ -139,7 +139,9 @@ int main(int argc, char **argv)
 
 	/*** Write the request on socket ***/
 	/*** TO BE DONE START ***/
-	send(tcp_socket, request, msgsz, 0);
+	size_t request_len = strlen(request);
+	if (write(tcp_socket, request, request_len) != request_len)
+		fail_errno("Error writing request on socket");
 	/*** TO BE DONE END ***/
 
 	nr = read(tcp_socket, answer, sizeof(answer));
