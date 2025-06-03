@@ -34,22 +34,23 @@ double do_ping(size_t msg_size, int msg_no, char message[msg_size], int tcp_sock
 	ssize_t recv_bytes, sent_bytes;
 	size_t offset;
 	struct timespec send_time, recv_time;
+	double RTT_ms;
 
 	/*** write msg_no at the beginning of the message buffer ***/
 	/*** TO BE DONE START ***/
-	printf(message, "%d\n", msg_no);
+	sprintf(message, "%d\n", msg_no);
 	/*** TO BE DONE END ***/
 
 	/*** Store the current time in send_time ***/
 	/*** TO BE DONE START ***/
-	if (clock_gettime(CLOCK_TYPE, &send_time) == 1)
+	if (clock_gettime(CLOCK_TYPE, &send_time) == -1)
 		fail_errno("Error getting time");
 	/*** TO BE DONE END ***/
 
 	/*** Send the message through the socket ***/
 	/*** TO BE DONE START ***/
 	sent_bytes = blocking_write_all(tcp_socket, message, msg_size);
-	if (sent_bytes < 0 || sent_bytes != msg_size)
+	if(sent_bytes < 0 || sent_bytes != msg_size)
 		fail_errno("Error sending data");
 	/*** TO BE DONE END ***/
 
@@ -122,9 +123,9 @@ int main(int argc, char **argv)
 			break;
 		close(tcp_socket);
 	}
+
 	if (addr == NULL)
 		fail_errno("Error connecting socket");
-
 	/*** TO BE DONE END ***/
 
 	freeaddrinfo(server_addrinfo);
@@ -150,8 +151,8 @@ int main(int argc, char **argv)
 
 	/*** Check if the answer is OK, and fail if it is not ***/
 	/*** TO BE DONE START ***/
-	if(strcmp("OK", answer))
-	 fail("Connessione non riouscita");
+	if (strncmp(answer, "OK", 2) != 0)
+		fail("TCP Ping received an unexpected answer from Pong server");
 	/*** TO BE DONE END ***/
 
 	/*** else ***/

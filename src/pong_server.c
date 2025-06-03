@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 
 	for (addr = server_addrinfo; addr != NULL; addr = addr->ai_next)
 	{
-		if ((server_socket = socket(server_addrinfo->ai_family, server_addrinfo->ai_socktype, 0)) < 0)
+		if ((server_socket = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol)) < 0)
 			continue;
 
 		if ((bind(server_socket, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) == 0)
