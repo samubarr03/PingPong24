@@ -74,5 +74,7 @@ ssize_t read_all(int fd, void *ptr, size_t n);
 ssize_t blocking_write_all(int fd, const void *ptr, size_t n);
 ssize_t nonblocking_write_all(int fd, const void *ptr, size_t n);
 
+ssize_t blocking_write_all(int fd, const void *buf, size_t count);
+
 #endif /* #ifdef PINGPONG_H */
 

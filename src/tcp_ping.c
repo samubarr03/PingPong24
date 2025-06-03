@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 
 	/*** TO BE DONE START ***/
 	gai_hints.ai_family = AF_INET;
-	gai_hints.ai_socktype = SOCK_DGRAM;
+	gai_hints.ai_socktype = SOCK_STREAM;
 	gai_hints.ai_protocol = IPPROTO_TCP;
 	/*** TO BE DONE END ***/
 
