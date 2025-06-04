@@ -14,8 +14,16 @@ FirstN=${HeadLine[0]}
 LastN=${TailLine[0]}
 
 # TO BE DONE START
+FirstT=${HeadLine[1]}
+LastT=${TailLine[1]}
 
+# Calcolo banda (Band) e latenza (Latency)
+#bc -l serve per i calcoli con virgola mobile
+d1=$(echo "$FirstN / $FirstT" | bc -l)
+d2=$(echo "$LastN / $LastT" | bc -l)
 
+Band=$(echo "($LastN - $FirstN) / ($d2 - $d1)" | bc -l)
+Latency=$(echo "($d1 * $LastN - $d2 * $FirstN) / ($LastN - $FirstN)" | bc -l)
 # TO BE DONE END
 
 
@@ -31,7 +39,8 @@ gnuplot <<-eNDgNUPLOTcOMMAND
   lbmodel(x)= x / ($Latency + (x/$Band))
 
 # TO BE DONE START
-
+  Latency = $Latency
+  Band = $Band
 # TO BE DONE END
 
   clear
