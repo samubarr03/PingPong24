@@ -22,8 +22,9 @@ LastT=${TailLine[1]}
 d1=$(echo "$FirstN / $FirstT" | bc -l)
 d2=$(echo "$LastN / $LastT" | bc -l)
 
-Band=$(echo "($LastN - $FirstN) / ($d2 - $d1)" | bc -l)
-Latency=$(echo "($d1 * $LastN - $d2 * $FirstN) / ($LastN - $FirstN)" | bc -l)
+Band=$(echo "scale=9; ($LastN - $FirstN) / ($d2 - $d1)" | bc -l)
+Latency=$(echo "scale=9; ($d1 * $LastN - $d2 * $FirstN) / ($LastN - $FirstN)" | bc -l)
+
 # TO BE DONE END
 
 
@@ -39,8 +40,9 @@ gnuplot <<-eNDgNUPLOTcOMMAND
   lbmodel(x)= x / ($Latency + (x/$Band))
 
 # TO BE DONE START
-  Latency = $Latency
-  Band = $Band
+lbf(x) = x / ($Latency + (x / $Band))
+plot "${ThroughFile}" using 1:2 title "Measured" with linespoints, \
+     lbf(x) title " $1 Latency-Bandwidth with L=$Latency and B=$Band" with lines lw 2
 # TO BE DONE END
 
   clear
