@@ -1,4 +1,4 @@
-PINGPONGADDR=127.0.0.1
+PINGPONGADDR=localhost
 PINGPONGPORT=1491
 TCP_EXE=../bin/tcp_ping
 UDP_EXE=../bin/udp_ping
