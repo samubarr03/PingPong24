@@ -61,8 +61,7 @@ sprintf(message, "%d\n", msg_no);
 	/*** Receive answer through the socket (non blocking mode) ***/
 /*** TO BE DONE START ***/
 		recv_bytes = recv(ping_socket, answer_buffer, sent_bytes, 0);
-		if (recv_bytes == -1 || recv_bytes != sent_bytes)
-			recv_errno = errno;
+		recv_errno = errno; //salvo sempre errno
 /*** TO BE DONE END ***/
 
 	/*** Store the current time in recv_time ***/
